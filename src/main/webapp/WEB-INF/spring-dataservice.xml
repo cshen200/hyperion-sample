@@ -1,0 +1,83 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+
+    <!-- Set up the Hyperion registry -->
+    <bean id="hyperionServiceRegistry"  parent="hyperionBaseServiceRegistry">
+        <property name="defaultHistoryEnabled" value="true"/>  <!-- Set history tracking on by default -->
+        <property name="defaultHistoryType" value="com.dottydingo.hyperion.sample.data.model.PersistentHistoryEntry"/> <!-- Set the default history persistent class -->
+        <property name="persistentChangeListeners" ref="hyperionHistoryPersistentChangeListener"/> <!-- set up the history change listener -->
+        <property name="entities">
+            <list>
+                <bean class="com.dottydingo.hyperion.core.configuration.EntityPluginBuilder">
+                    <property name="endpointName" value="Department"/> <!-- Entity name -->
+                    <property name="entityClass" value="com.dottydingo.hyperion.sample.data.model.PersistentDepartment"/> <!-- Persistent class -->
+                    <property name="versions">                                                                  <!-- Setup for each version -->
+                        <bean class="com.dottydingo.hyperion.jpa.configuration.JpaDefaultsVersionPluginBuilder">
+                            <property name="apiClass" value="com.dottydingo.hyperion.sample.data.api.Department"/> <!-- API class -->
+                            <property name="translator">                                                           <!-- Translator for this version -->
+                                <bean class="com.dottydingo.hyperion.sample.data.translation.DepartmentTranslator"
+                                      init-method="init"/>
+                            </property>
+                            <property name="validator">                                                            <!-- Validator for this version -->
+                                <bean class="com.dottydingo.hyperion.sample.data.validation.DepartmentValidator"/>
+                            </property>
+                            <property name="createKeyProcessor">
+                                <bean class="com.dottydingo.hyperion.sample.data.persistence.DepartmentCreateKeyProcessor"/> <!-- Allow create or update calls -->
+                            </property>
+                        </bean>
+                    </property>
+
+                </bean>
+                <bean class="com.dottydingo.hyperion.core.configuration.EntityPluginBuilder">
+                    <property name="endpointName" value="Territory"/>
+                    <property name="entityClass" value="com.dottydingo.hyperion.sample.data.model.PersistentTerritory"/>
+                    <property name="versions">
+                        <bean class="com.dottydingo.hyperion.jpa.configuration.JpaDefaultsVersionPluginBuilder">
+                            <property name="apiClass" value="com.dottydingo.hyperion.sample.data.api.Territory"/>
+                            <property name="translator">
+                                <bean class="com.dottydingo.hyperion.sample.data.translation.TerritoryTranslator"
+                                      init-method="init"/>
+                            </property>
+                            <property name="validator">
+                                <bean class="com.dottydingo.hyperion.sample.data.validation.TerritoryValidator"/>
+                            </property>
+                            <property name="createKeyProcessor">
+                                <bean class="com.dottydingo.hyperion.sample.data.persistence.TerritoryCreateKeyProcessor"/>
+                            </property>
+                        </bean>
+                    </property>
+
+                </bean>
+                <bean class="com.dottydingo.hyperion.core.configuration.EntityPluginBuilder">
+                    <property name="endpointName" value="Employee"/>
+                    <property name="entityClass" value="com.dottydingo.hyperion.sample.data.model.PersistentEmployee"/>
+                    <property name="versions">
+                        <bean class="com.dottydingo.hyperion.jpa.configuration.JpaDefaultsVersionPluginBuilder">
+                            <property name="apiClass" value="com.dottydingo.hyperion.sample.data.api.Employee"/>
+                            <property name="translator">
+                                <bean class="com.dottydingo.hyperion.sample.data.translation.EmployeeTranslator"
+                                      init-method="init"/>
+                            </property>
+                            <property name="validator">
+                                <bean class="com.dottydingo.hyperion.sample.data.validation.EmployeeValidator"/>
+                            </property>
+                            <property name="queryExcludeFields" value="territoryIds"/>   <!-- exclude default query builder for territory ids -->
+                            <property name="sortExcludeFields" value="territoryIds"/>    <!-- exclude default sort builder for territory ids -->
+                            <property name="queryBuilders">
+                                <map>
+                                    <entry key="territoryId">       <!-- add a query builder for territoryIds -->
+                                        <bean class="com.dottydingo.hyperion.sample.data.persistence.TerritoryIdQueryBuilder"/>
+                                    </entry>
+                                </map>
+                            </property>
+                        </bean>
+                    </property>
+
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+</beans>

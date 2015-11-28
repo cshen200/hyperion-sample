@@ -1,0 +1,21 @@
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %X{CID} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <!--
+        Only log entries that match the configured logger level (so we don't leak to other appenders when a trace
+        is active.
+        -->
+        <filter class="com.dottydingo.service.tracelog.logback.LoggerLevelFilter"/>
+    </appender>
+
+
+    <logger name="com.dottydingo" level="TRACE"/>
+    <logger name="jdbc" level="OFF"/>
+    <logger name="jdbc.sqltiming" level="INFO"/>
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>

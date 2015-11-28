@@ -1,0 +1,68 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+    <!--
+    Set up configuration properties. Properties defined in a file may be overridden by properties define in files listed
+     after.
+     -->
+    <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <!-- Default hyperion settings -->
+                <value>classpath:com/dottydingo/hyperion/core/spring/hyperion_default.properties</value>
+                <!-- Local service settings settings -->
+                <value>classpath:application.properties</value>
+                <!-- External, environment specific settings -->
+                <!-- Uncomment this line for using an embedded h2 database -->
+                <value>file:h2.properties</value>
+                <!-- Uncomment this line for using a mysql database -->
+                <!--<value>file:mysql.properties</value>-->
+            </list>
+        </property>
+    </bean>
+
+    <context:component-scan base-package="com.dottydingo.hyperion.sample.data"/>
+
+    <!-- The hyperion endpoint hander - accepts incoming data service requests -->
+    <bean id="hyperionEndpoint" class="com.dottydingo.service.endpoint.spring.EndpointRequestHandler">
+        <property name="endpointHandler" ref="hyperionEndpointHandler"/>
+    </bean>
+
+    <!-- The swagger integration handler -->
+    <bean id="hyperionSwaggerRequestHandler" class="com.dottydingo.hyperion.module.swagger.SwaggerRequestHandler">
+        <property name="swaggerSpecBuilder">
+            <bean class="com.dottydingo.hyperion.module.swagger.SwaggerSpecBuilder">
+                <property name="basePath" value="http://localhost:8080/data"/>
+                <property name="serviceRegistry" ref="hyperionServiceRegistry"/>
+                <property name="endpointConfiguration" ref="hyperionEndpointConfiguration"/>
+            </bean>
+        </property>
+    </bean>
+
+
+    <!-- Set up JMX exporting for hyperion beans -->
+    <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
+        <property name="locateExistingServerIfPossible" value="true"/>
+    </bean>
+
+    <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter">
+        <property name="beans">
+            <map>
+                <entry key="bean:name=testBean1" value-ref="hyperionEndpointStatus"/>
+                <entry key="executors:name=endpointValidation" value-ref="hyperionEndpointValidationTpExecutorMbean"/>
+                <entry key="executors:name=query" value-ref="hyperionQueryTpExecutorMbean"/>
+                <entry key="executors:name=get" value-ref="hyperionGetTpExecutorMbean"/>
+                <entry key="executors:name=create" value-ref="hyperionCreateTpExecutorMbean"/>
+                <entry key="executors:name=update" value-ref="hyperionUpdateTpExecutorMbean"/>
+                <entry key="executors:name=delete" value-ref="hyperionDeleteTpExecutorMbean"/>
+                <entry key="executors:name=history" value-ref="hyperionHistoryTpExecutorMbean"/>
+                <entry key="executors:name=options" value-ref="hyperionOptionsTpExecutorMbean"/>
+                <entry key="executors:name=marshall" value-ref="hyperionMarhallTpExecutorMbean"/>
+            </map>
+        </property>
+        <property name="server" ref="mbeanServer"/>
+    </bean>
+</beans>

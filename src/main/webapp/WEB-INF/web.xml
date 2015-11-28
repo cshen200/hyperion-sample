@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0">
+
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+            <!-- Pull in the default spring configurations for hyperion -->
+            classpath:com/dottydingo/hyperion/core/spring/spring-hyperion-data.xml,
+            classpath:com/dottydingo/hyperion/jpa/spring/spring-hyperion-data-jpa.xml,
+            classpath:com/dottydingo/hyperion/core/spring/spring-hyperion-endpoint.xml,
+            classpath:com/dottydingo/hyperion/core/spring/spring-hyperion-phase.xml,
+            classpath:com/dottydingo/hyperion/core/spring/spring-hyperion-pipeline-asynchronous.xml,
+            classpath:com/dottydingo/hyperion/core/spring/spring-hyperion-management.xml,
+            <!-- Pull in the local spring configurations for the service -->
+            WEB-INF/spring-main.xml,
+            WEB-INF/spring-persistence.xml,
+            WEB-INF/spring-dataservice.xml
+        </param-value>
+    </context-param>
+
+    <!-- Initialize spring -->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+    <!-- Define the hyperion endpoint -->
+    <servlet>
+        <servlet-name>hyperionEndpoint</servlet-name>
+        <servlet-class>org.springframework.web.context.support.HttpRequestHandlerServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+        <async-supported>true</async-supported>
+    </servlet>
+
+    <!-- Define the swagger spec endpoint -->
+    <servlet>
+        <servlet-name>hyperionSwaggerRequestHandler</servlet-name>
+        <servlet-class>org.springframework.web.context.support.HttpRequestHandlerServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <!-- Map hyperion requests to /data/* -->
+    <servlet-mapping>
+        <servlet-name>hyperionEndpoint</servlet-name>
+        <url-pattern>/data/*</url-pattern>
+    </servlet-mapping>
+
+    <!-- Map swagger spec requests to /apidocs/* -->
+    <servlet-mapping>
+        <servlet-name>hyperionSwaggerRequestHandler</servlet-name>
+        <url-pattern>/apidocs/*</url-pattern>
+    </servlet-mapping>
+</web-app>
