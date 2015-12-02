@@ -5,7 +5,7 @@ Hyperion sample project.
 
 `mvn clean package` to build.
 
-``./t.sh` to start up
+``./tomcat.sh` to start up
 
 Pull up the included swagger page at: http://localhost:8080/client
 
