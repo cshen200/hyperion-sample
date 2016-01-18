@@ -19,7 +19,7 @@ public class BaseTranslatorFixture
     {
         context = new PersistenceContext();
         context.setUserContext(new UserContext());
-        context.setAuthorizationContext(new NoOpAuthorizationContext());
+        context.setAuthorizationContext(new NoOpAuthorizationContext(null));
     }
 
     protected Date buildDate(String date)
